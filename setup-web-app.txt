@@ -1,0 +1,52 @@
+---
+- name: Setup and deploy web application
+  hosts: all
+  become: true
+  vars:
+    app_source_dir: "/var/www/myapp"  # Directory where your web application code will be deployed
+    app_repo_url: "https://github.com/your/webapp.git"  # URL of your web application repository
+    nginx_config_template: "/path/to/nginx_config_template.conf.j2"  # Path to your nginx configuration template
+  tasks:
+    - name: Install required packages
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - nginx
+        - git
+
+    - name: Ensure Nginx service is enabled and running
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Clone web application repository
+      git:
+        repo: "{{ app_repo_url }}"
+        dest: "{{ app_source_dir }}"
+        force: yes
+
+    - name: Copy nginx configuration file
+      template:
+        src: "{{ nginx_config_template }}"
+        dest: "/etc/nginx/sites-available/default"
+      notify:
+        - Reload Nginx
+
+    - name: Ensure web application directory exists
+      file:
+        path: "{{ app_source_dir }}"
+        state: directory
+
+    - name: Set permissions for web application directory
+      file:
+        path: "{{ app_source_dir }}"
+        mode: '0755'
+        recurse: yes
+
+  handlers:
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded

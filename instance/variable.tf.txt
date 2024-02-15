@@ -1,0 +1,19 @@
+variable "subnet_id" {
+  description = "ID of the subnet"
+}
+
+variable "security_group_id" {
+  description = "ID of the security group"
+}
+
+variable "ami_id" {
+  description = "AMI ID for the instance"
+}
+
+variable "root_volume_size" {
+  description = "Size of the root volume in GB"
+}
+
+variable "log_volume_size" {
+  description = "Size of the log volume in GB"
+}

@@ -1,0 +1,34 @@
+module "vpc" {
+  source = "./vpc"
+}
+
+module "subnets" {
+  source = "./subnets"
+  vpc_id = module.vpc.vpc_id
+}
+
+module "security_groups" {
+  source = "./security_groups"
+  vpc_id = module.vpc.vpc_id
+}
+
+module "load_balancer" {
+  source = "./load_balancer"
+  vpc_id = module.vpc.vpc_id
+}
+
+module "autoscaling" {
+  source   = "./autoscaling"
+  subnet_ids = module.subnets.private_subnet_ids
+  security_group_id = module.security_groups.private_security_group_id
+  ami_id = var.ami_id
+}
+
+module "instance" {
+  source = "./instance"
+  subnet_id = module.subnets.private_subnet_ids[0] # Assuming there's only one private subnet
+  security_group_id = module.security_groups.private_security_group_id
+  root_volume_size = var.root_volume_size
+  log_volume_size = var.log_volume_size
+  ami_id = var.ami_id
+}

@@ -1,0 +1,32 @@
+resource "aws_launch_configuration" "web" {
+  name          = "web-launch-config"
+  image_id      = var.ami_id
+  instance_type = "t2.micro"
+  security_groups = [var.security_group_id]
+
+  root_block_device {
+    volume_size = 20
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_autoscaling_group" "web" {
+  launch_configuration = aws_launch_configuration.web.name
+  min_size             = 2
+  max_size             = 5
+  desired_capacity     = 3
+  vpc_zone_identifier  = var.subnet_ids
+
+  tag {
+    key                 = "Name"
+    value               = "web-instance"
+    propagate_at_launch = true
+  }
+}
+
+output "autoscaling_group_name" {
+  value = aws_autoscaling_group.web.name
+}

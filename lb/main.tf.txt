@@ -1,0 +1,15 @@
+resource "aws_lb" "web" {
+  name               = "web-lb"
+  load_balancer_type = "application"
+  internal           = false
+  security_groups    = [var.public_security_group_id]
+  subnets            = var.subnet_ids
+
+  tags = {
+    Name = "WebLB"
+  }
+}
+
+output "load_balancer_dns_name" {
+  value = aws_lb.web.dns_name
+}
